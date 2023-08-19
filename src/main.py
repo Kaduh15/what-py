@@ -1,38 +1,19 @@
+import asyncio
 import os
-
-from fastapi import FastAPI, Query
+import uvicorn
 
 from dotenv import load_dotenv, find_dotenv
 
-from modules.wa_client import WAClient
-
 load_dotenv(find_dotenv())
 
-IS_PRODUCTION = os.getenv("PY_ENV") == "production"
-
-app = FastAPI()
-
-client = WAClient(headless=IS_PRODUCTION)
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-@app.get("/login/")
-def login():
-    qrcode = client.get_qr_code()
-    return {"qrCode": qrcode}
-
-@app.get("/is_logged/")
-def is_logged():
-    logged = client.is_logged()
-    return {"isLogged": logged}
+PORT = int(os.getenv("PORT", 5000)) or 5000
 
 
-@app.get("/send/")
-def get_movie(
-    phone: str = Query(None, min_length=1, max_length=100),
-    text: str = Query(None, min_length=1, max_length=100),
-):
-    client.send_message(phone, text)
-    return {"to": phone, "text": text, "status": "success"}
+async def main():
+    config = uvicorn.Config("app:app", port=PORT, log_level="info")
+    server = uvicorn.Server(config)
+    await server.serve()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

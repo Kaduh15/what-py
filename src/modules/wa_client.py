@@ -35,11 +35,11 @@ class WAClient:
         chrome_options = ChromeOptions()
 
         chrome_options.add_argument("--sendbox")
+        chrome_options.add_argument("--disable-setuid-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        # chrome_options.add_argument(r"--user-data-dir=./User_Data")
+
         if self.__headless:
             chrome_options.add_argument("--headless=new")
-            chrome_options.add_argument("--disable-gpu")
 
         chrome_service = ChromeService(ChromeDriverManager().install())
 
