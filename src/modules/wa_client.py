@@ -86,13 +86,17 @@ class WAClient:
         return element.get_attribute("data-ref")
 
     def send_message(self, phone, message):
-        if not self.is_logged():
-            return False
+        try:    
+            if not self.is_logged():
+                return False
 
-        self.browser.get(
-            f"https://web.whatsapp.com/send?phone={phone}&text={quote(message)}"
-        )
-        element = wait_element(self.browser, By.CSS_SELECTOR, "span[data-icon='send']")
-        sleep(2)
-        element.click()
-        return True
+            self.browser.get(
+                f"https://web.whatsapp.com/send?phone={phone}&text={quote(message)}"
+            )
+            element = wait_element(self.browser, By.CSS_SELECTOR, "span[data-icon='send']")
+            sleep(2)
+            element.click()
+            return True
+        except Exception as e:
+            print(e)
+            return False

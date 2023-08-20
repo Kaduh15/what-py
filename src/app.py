@@ -39,5 +39,8 @@ def get_movie(
     phone: str = Query(None, min_length=1, max_length=100),
     text: str = Query(None, min_length=1, max_length=100),
 ):
-    client.send_message(phone, text)
+    result = client.send_message(phone, text)
+    if not result:
+        return {"to": phone, "text": text, "status": "failed"}
+    
     return {"to": phone, "text": text, "status": "success"}
