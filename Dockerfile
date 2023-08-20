@@ -1,16 +1,17 @@
-FROM python:3.10
+FROM cypress/browsers:latest
 
-# Adding trusting keys to apt for repositories
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \ 
-    && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
+RUN apt-get install python3 -y
 
-RUN apt-get update && apt-get -y install google-chrome-stable
+RUN echo $(python3 -m site --user-base)
 
-COPY . /app
-WORKDIR /app
+COPY requirements.txt  .
 
-RUN pip install --upgrade pip
+ENV PATH /home/root/.local/bin:${PATH}
 
-RUN pip install -r requirements.txt
+RUN  apt-get update && apt-get install -y python3-pip && pip install -r requirements.txt  
 
-CMD ["python", "src/main.py"]
+COPY . .
+
+ENTRYPOINT [ "python3" ]
+
+CMD [ "src/main.py" ]

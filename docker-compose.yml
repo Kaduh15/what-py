@@ -8,3 +8,6 @@ services:
     environment:
       - PY_ENV=production
       - PORT=5000
+      - RELOAD=True
+    volumes:
+      - ./src:/app/src

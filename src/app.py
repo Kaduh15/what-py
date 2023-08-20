@@ -22,6 +22,8 @@ def read_root():
 
 @app.get("/login/")
 def login():
+    if client.IS_LOGGED:
+        return {"status": "success"}
     qrcode = client.get_qr_code()
     return {"qrCode": qrcode}
 

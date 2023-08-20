@@ -27,27 +27,30 @@ def wait_element(driver: Chrome, by, element):
 
 class WAClient:
     IS_LOGGED = False
-    __headless = True
 
     def __init__(self, headless=True):
-        self.__headless = headless
+        self.browser = self.createDriver(headless=headless)
+        self.browser.get("https://web.whatsapp.com/")
 
+        self.is_logged()
+
+    def createDriver(self, headless=True):
         chrome_options = ChromeOptions()
-
-        chrome_options.add_argument("--sendbox")
-        chrome_options.add_argument("--disable-setuid-sandbox")
+        if headless:
+            chrome_options.add_argument("--headless=new")
+        chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
 
-        if self.__headless:
-            chrome_options.add_argument("--headless=new")
+        prefs = {"profile.managed_default_content_settings.images": 2}
+        # chrome_options.headless = headless
 
-        chrome_service = ChromeService(ChromeDriverManager().install())
+        chrome_options.add_experimental_option("prefs", prefs)
+        myDriver = Chrome(
+            service=ChromeService(ChromeDriverManager().install()),
+            options=chrome_options,
+        )
 
-        driver = Chrome(options=chrome_options, service=chrome_service)
-        driver.get("https://web.whatsapp.com/")
-
-        self.driver = driver
-        self.is_logged()
+        return myDriver
 
     def is_logged(self):
         if self.IS_LOGGED:
@@ -55,7 +58,7 @@ class WAClient:
 
         try:
             item = bool(
-                self.driver.execute_script(
+                self.browser.execute_script(
                     "return window.localStorage.getItem(arguments[0]);", "last-wid-md"
                 )
             )
@@ -70,7 +73,7 @@ class WAClient:
 
         qr_code = self.get_qr_code()
         print("QR Code: ", qr_code)
-        wait_element_exit(self.driver, By.CLASS_NAME, "_19vUU")
+        wait_element_exit(self.browser, By.CLASS_NAME, "_19vUU")
 
         self.IS_LOGGED = True
 
@@ -78,18 +81,18 @@ class WAClient:
         if self.is_logged():
             return None
 
-        self.driver.get("https://web.whatsapp.com/")
-        element = wait_element(self.driver, By.CSS_SELECTOR, "._19vUU[data-ref]")
+        self.browser.get("https://web.whatsapp.com/")
+        element = wait_element(self.browser, By.CSS_SELECTOR, "._19vUU[data-ref]")
         return element.get_attribute("data-ref")
 
     def send_message(self, phone, message):
         if not self.is_logged():
             return False
 
-        self.driver.get(
+        self.browser.get(
             f"https://web.whatsapp.com/send?phone={phone}&text={quote(message)}"
         )
-        element = wait_element(self.driver, By.CSS_SELECTOR, "span[data-icon='send']")
+        element = wait_element(self.browser, By.CSS_SELECTOR, "span[data-icon='send']")
         sleep(2)
         element.click()
         return True
