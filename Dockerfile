@@ -1,5 +1,7 @@
 FROM cypress/browsers:latest
 
+ENV PY_ENV=production
+
 RUN apt-get install python3 -y
 
 RUN echo $(python3 -m site --user-base)
